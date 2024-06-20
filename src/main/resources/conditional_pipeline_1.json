@@ -1,0 +1,99 @@
+{
+    "clientType": "com.example.validation.client.UserClient",
+    "methodName": "getToken",
+    "parametersType": ["com.example.validation.data.User"],
+    "paramsConfig": [
+        {
+            "paramIndex": 0,
+            "source": "PIPELINE_INPUT",
+            "extractExpression": "#this.headers.get('access')"
+        },
+        {
+            "paramIndex": 1,
+            "source": "PIPELINE_INPUT",
+            "extractExpression": "#this.headers.get('refresh-token')"
+        }
+    ],
+    "nextMethods": [
+        {
+            "clientType": "com.example.validation.client.UserClient",
+            "methodName": "getUserInfo",
+            "parametersType": ["java.lang.String"],
+            "paramsConfig": [
+                {
+                    "paramIndex": 0,
+                    "source": "PREVIOUS_METHOD",
+                    "extractExpression": "#this.get('token')"
+                }
+            ],
+            "invokeCondition": {
+                "sources": ["PREVIOUS_METHOD"],
+                "extractExpression": "#this.get('PREVIOUS_METHOD') != null && #this.get('PREVIOUS_METHOD').get('token') != null"
+            },
+            "nextMethods": [
+                {
+                    "clientType": "com.example.validation.client.UserClient",
+                    "methodName": "validatePassword",
+                    "parametersType": ["com.example.validation.data.User"],
+                    "paramsConfig": [
+                        {
+                            "paramIndex": 0,
+                            "source": "PREVIOUS_METHOD",
+                            "extractExpression": "#this"
+                        }
+                    ],
+                    "nextMethods": [
+                        {
+                            "clientType": "com.example.validation.client.UserClient",
+                            "methodName": "changePassword",
+                            "parametersType": ["com.example.validation.data.User"],
+                            "paramsConfig": [
+                                {
+                                    "paramIndex": 0,
+                                    "source": "METHOD_CACHE",
+                                    "extractExpression": "#this.get('getUserInfo')"
+                                }
+                            ],
+                            "invokeCondition": {
+                                "sources": ["PREVIOUS_METHOD"],
+                                "extractExpression": "!#this.get('PREVIOUS_METHOD')"
+                            }
+                        },
+                        {
+                            "clientType": "com.example.validation.client.UserClient",
+                            "methodName": "passwordWarning",
+                            "parametersType": ["com.example.validation.data.User"],
+                            "paramsConfig": [
+                                {
+                                    "paramIndex": 0,
+                                    "source": "METHOD_CACHE",
+                                    "extractExpression": "#this.get('getUserInfo')"
+                                }
+                            ],
+                            "invokeCondition": {
+                                "sources": ["PREVIOUS_METHOD"],
+                                "extractExpression": "#this.get('PREVIOUS_METHOD')"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "clientType": "com.example.validation.client.UserClient",
+            "methodName": "tokenWarning",
+            "parametersType": ["com.example.validation.data.User"],
+            "paramsConfig": [
+                {
+                    "paramIndex": 0,
+                    "source": "PIPELINE_INPUT",
+                    "extractExpression": "#this"
+                }
+            ],
+            "invokeCondition": {
+                "sources": ["PREVIOUS_METHOD"],
+                "extractExpression": "#this.get('PREVIOUS_METHOD') == null"
+            }
+        }
+    ]
+}

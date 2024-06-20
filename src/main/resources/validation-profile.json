@@ -1,0 +1,15 @@
+{
+  "combineType": "AND",
+  "rules": [
+    {
+      "fieldName": "name",
+      "expression": "name.length > 10",
+      "description": "name length must be greater than 10"
+    },
+    {
+      "fieldName": "code",
+      "expression": "code.length > 5",
+      "description": "code length must be greater than 5"
+    }
+  ]
+}

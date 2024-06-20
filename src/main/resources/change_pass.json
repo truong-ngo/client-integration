@@ -1,0 +1,37 @@
+{
+    "methodName": "changePassword",
+    "parametersType": ["com.example.validation.data.User"],
+    "paramsFromDependencyMethods": {
+        "0": "#this.get('getUserInfo')"
+    },
+    "dependencyMethods": [
+        {
+            "methodName": "validatePassword",
+            "parametersType": ["com.example.validation.data.User"],
+            "paramsFromDependencyMethods": {
+                "0": "#this.get('getUserInfo')"
+            },
+            "dependencyMethods": [
+                {
+                    "methodName": "getUserInfo",
+                    "parametersType": ["java.lang.String"],
+                    "paramsFromDependencyMethods": {
+                        "0": "#this.get('getToken').get('token')"
+                    },
+                    "dependencyMethods": [
+                        {
+                            "methodName": "getToken",
+                            "parametersType": ["com.example.validation.data.User"],
+                            "paramsFromPipelineInputs": {
+                                "0": "#this"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "methodName": "getUserInfo"
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+    "apiConfig": {
+        "apiName": "getToken",
+        "url": "http://localhost:8080/api/token",
+        "method": "POST",
+        "body": {
+            "username": "#this.get('INTEGRATION_INPUT').get('user').username",
+            "password": "#this.get('INTEGRATION_INPUT').get('user').password"
+        }
+    },
+    "nextStep": [
+        {
+            "apiConfig": {
+                "apiName": "getDepartmentByDepartmentCode",
+                "url": "http://localhost:8080/api/departments/{code}",
+                "method": "GET",
+                "headers": {
+                    "Authorization": "'Bearer ' + #this.get('API_CACHE').get('getToken').getBody().get('token')"
+                },
+                "pathVariables": {
+                    "code": "#this.get('INTEGRATION_INPUT').get('departmentCode')"
+                }
+            },
+            "nextStep": [
+                {
+                    "apiConfig": {
+                        "apiName": "getProjectByDepartmentId",
+                        "url": "http://localhost:8080/api/projects",
+                        "method": "GET",
+                        "queryParams": {
+                            "departmentId": "#this.get('API_CACHE').get('getDepartmentByDepartmentCode').getBody().get('id')"
+                        }
+                    },
+                    "callCondition": "#this.get('API_CACHE').get('getDepartmentByDepartmentCode').getBody() != null"
+                },
+                {
+                    "apiConfig": {
+                        "apiName": "reportBack",
+                        "url": "http://localhost:8080/api/report",
+                        "method": "POST",
+                        "body": {
+                            "message": "'department with code ' + #this.get('INTEGRATION_INPUT').get('departmentCode') + ' not found'"
+                        }
+                    },
+                    "callCondition": "#this.get('API_CACHE').get('getDepartmentByDepartmentCode').getBody() == null"
+                }
+            ]
+        }
+    ]
+}
